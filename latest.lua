@@ -86,8 +86,8 @@ dcpp:setListener( "pm", "latest",
                             local index=table.getn(pathtab)
                             local filename=pathtab[index]
                             filename = filename:gsub('%s','+')
-                            result = string.sub(line,-43,-5)
-                            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&dn=" .. filename
+                            HashValue = string.sub(line,-43,-5)
+                            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. HashValue .. "&xl=" .. filesize .. "&dn=" .. filename
                          end    
                       end
 		   end
@@ -119,12 +119,12 @@ dcpp:setListener( "adcPm", "latest",
                             local index=table.getn(pathtab)
                             local filename=pathtab[index]
                             filename = filename:gsub('%s','+')
-                            result = string.sub(line,-43,-5)
-                            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&dn=" .. filename
+                            HashValue = string.sub(line,-43,-5)
+                            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. HashValue .. "&xl=" .. filesize .. "&dn=" .. filename
                          end    
                       end
                    end
-                  user:sendPrivMsgFmt( line )
+                  user:sendPrivMsgFmt( out )
 		end
 	end
 )
