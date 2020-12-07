@@ -17,8 +17,8 @@
 --
 -- Ecouter le mot "/latest" sur un private message
 -- Recuperer la liste des dernieres fichiers ajouts sur les 10 derniers jours
--- regarder dans le "HashIndex.xml" 
--- Renvoyer les TTH et al liste en private message à l'utilisateuren private message
+-- regarder dans le "HashIndex.xml" et stat du fichier
+-- Renvoyer les TTH,Nom,Taille sous forme de magnet en private message à l'utilisateur
 
 ts = os.time()
 os.execute("stat -c %Y ~/.config/eiskaltdc++/HashIndex.xml > /tmp/luaexecute")
