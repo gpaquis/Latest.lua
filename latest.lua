@@ -59,13 +59,10 @@ function split_path(str)
 end
 
 
-out=""
-
-
-
 dcpp:setListener( "pm", "latest",
 	function( hub, user, text )
 		local s = string.lower( text )
+		local out=""
 		if string.find( s, "/latest" )  then
 		   for line in io.lines(filepath) do
   		      local i = string.find(line, 'TimeStamp=')
@@ -98,6 +95,7 @@ dcpp:setListener( "pm", "latest",
 
 dcpp:setListener( "adcPm", "latest",
 	function( hub, user, text, me_msg )
+		local out=""
 		local s = string.lower( text )
 		if string.find( s, "/latest" )  then
 		   for line in io.lines(filepath) do
