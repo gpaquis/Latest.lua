@@ -17,23 +17,41 @@
 --
 -- Ecouter le mot "/latest" sur un private message
 -- Recuperer la liste des dernieres fichiers ajouts sur les 10 derniers jours
--- regarder dans le "HashIndex.xml" et stat du fichier
--- Renvoyer les TTH,Nom,Taille sous forme de magnet en private message à l'utilisateur
-
-ts = os.time()
-os.execute("stat -c %Y ~/.config/eiskaltdc++/HashIndex.xml > /tmp/luaexecute")
-filepath="/home/pi/.config/eiskaltdc++/HashIndex.xml"
+-- regarder dans le "HashIndex.xml" 
+-- Renvoyer les TTH et al liste en private message à l'utilisateuren private message
+-- 
 --[[
 86400 = 1j
 --]]
+
 day=86400
 backto= day * 7
 
-file = io.open("/tmp/luaexecute", "r")
-io.input(file)
-filetime=io.read()
-io.close(file)
+--[[
+<File Name="/Volumes/Partages/Rpi/eiskaltdcpp_2.10_725.tar.gz" TimeStamp="1606656603" Root="6HHIE3P7AXVTPXGVQNUQIGR476IOG57YEIG7KBI"/>
+magnet:?xt=urn:tree:tiger:AWJFB3JFL2CQRQCBUBK4THVJWLQCGWOJCMLPWWQ&xl=65895850&dn=eiskaltdcpp_2.4_03122020.tgz
+--]]
+
+
+filepath="/home/pi/.config/eiskaltdc++/HashIndex.xml"
+local cmd_date = "stat -c %Y " .. filepath .. " > /tmp/luaexecute"
+
+TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img"}
+--TKeepExt={"*"}
+
+function Get_cmd_result(str)
+   local cmd = str
+   os.execute(cmd)
+   file = io.open("/tmp/luaexecute", "r")
+   io.input(file)
+   local value=io.read()
+   io.close(file)
+   return value
+end
+
+filetime = Get_cmd_result(cmd_date)
 searchdate = filetime - backto
+
 
 function split(str, pat)
    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
@@ -58,71 +76,87 @@ function split_path(str)
    return split(str,'[\\/]+')
 end
 
+function searchlatest()
+  local out="Latest"
+  for line in io.lines(filepath) do
+    local i = string.find(line, 'TimeStamp=')
+    if i ~= nil then
+      local timekey = string.sub(line, -61, -52)
+      timekey = timekey:gsub('"', "0")
+      if tonumber(timekey) > searchdate then
+        --Debug Path--
+        --print(line)
+
+        --[[ Extraction du chemin ]]
+
+        local BeginName = string.find(line, "Name")
+        local EndName = string.find(line, "TimeStamp")
+        local Nameglb = string.sub(line, BeginName +6, EndName -3)
+        -- Debug Nameglb --
+        --print(Nameglb)
+
+        --[[ Extraction du nom de fichier ]]
+
+        Tfilename = split_path(Nameglb,'/')
+        local idfilename=table.getn(Tfilename)
+        local filename=Tfilename[idfilename]
+        filename = filename:gsub('%s','+')
+        -- Debug FileName --
+        --print(filename)
+
+
+        --[[Extraction de l'extension ]]
+
+        Textension = split(filename,'[.]+')
+        local idext=table.getn(Textension)
+        local ext=Textension[idext]
+        -- Debug extension --
+        --print(ext)
+        for k,v in ipairs(TKeepExt) do
+          if v == ext then
+            --  local out=""
+            -- Debug Filename Triee --
+            --print(filename)
+            local cmd_size = "stat -c %s \"" .. Nameglb .. "\" > /tmp/luaexecute"
+            filesize = Get_cmd_result(cmd_size)
+            -- Debug filesize --
+            --print(filesize)
+
+            --[[ Recuperation du Hash ]] --
+            --print(line)
+            result = string.sub(line,-43,-5)
+            --print(result)
+
+            --[[ Creation du Magnet ]] --
+            --out = out .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
+            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
+          end
+        end
+      end
+    end
+  end
+  return out
+end
+
+
+
 
 dcpp:setListener( "pm", "latest",
 	function( hub, user, text )
 		local s = string.lower( text )
-		local out=""
 		if string.find( s, "/latest" )  then
-		   for line in io.lines(filepath) do
-  		      local i = string.find(line, 'TimeStamp=')
-                      if i ~= nil then
-                         local key = string.sub(line, -61, -52)
-                         local key = key:gsub('"', "0")
-                         if tonumber(key) > searchdate then
-                            local BeginName = string.find(line, "Name")
-                            local EndName = string.find(line, "TimeStamp")
-                            local Nameglb = string.sub(line, BeginName +6, EndName -3)
-                            cmd = "stat -c %s \"" .. Nameglb .. "\" > /tmp/luaexecute"
-                            os.execute( cmd )
-                            file = io.open("/tmp/luaexecute", "r")
-                            io.input(file)
-                            filesize=io.read()
-			    io.close(file)
-                            pathtab = split_path(Nameglb,'/')
-                            local index=table.getn(pathtab)
-                            local filename=pathtab[index]
-                            filename = filename:gsub('%s','+')
-                            HashValue = string.sub(line,-43,-5)
-                            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. HashValue .. "&xl=" .. filesize .. "&dn=" .. filename
-                         end    
-                      end
-		   end
-	          user:sendPrivMsgFmt( out )
+		  liste=searchlatest()
+	          user:sendPrivMsgFmt( liste )
                 end
 	end
 )
 
 dcpp:setListener( "adcPm", "latest",
 	function( hub, user, text, me_msg )
-		local out=""
 		local s = string.lower( text )
 		if string.find( s, "/latest" )  then
-		   for line in io.lines(filepath) do
-  		      local i = string.find(line, 'TimeStamp=')
-                      if i ~= nil then
-                         local key = string.sub(line, -61, -52)
-                         local key = key:gsub('"', "0")
-                         if tonumber(key) > searchdate then
-                            local BeginName = string.find(line, "Name")
-                            local EndName = string.find(line, "TimeStamp")
-                            local Nameglb = string.sub(line, BeginName +6, EndName -3)
-                            cmd = "stat -c %s \"" .. Nameglb .. "\" > /tmp/luaexecute"
-                            os.execute( cmd )
-                            file = io.open("/tmp/luaexecute", "r")
-                            io.input(file)
-                            filesize=io.read()
-			    io.close(file)
-                            pathtab = split_path(Nameglb,'/')
-                            local index=table.getn(pathtab)
-                            local filename=pathtab[index]
-                            filename = filename:gsub('%s','+')
-                            HashValue = string.sub(line,-43,-5)
-                            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. HashValue .. "&xl=" .. filesize .. "&dn=" .. filename
-                         end    
-                      end
-                   end
-                  user:sendPrivMsgFmt( out )
+                   liste=searchlatest() 
+                   user:sendPrivMsgFmt( out )
 		end
 	end
 )
