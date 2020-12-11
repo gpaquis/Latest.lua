@@ -131,7 +131,7 @@ function searchlatest()
               --[[ Creation du Magnet ]] --
               --out = out .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
               out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
-	        end
+	    end
           end
         end
       end
