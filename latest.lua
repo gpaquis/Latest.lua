@@ -19,11 +19,10 @@
 -- Recuperer la liste des dernieres fichiers ajouts sur les 10 derniers jours
 -- regarder dans le "HashIndex.xml" 
 -- Renvoyer les TTH et al liste en private message à l'utilisateuren private message
--- 
+
 --[[
 86400 = 1j
 --]]
-
 day=86400
 backto= day * 7
 
@@ -34,23 +33,19 @@ magnet:?xt=urn:tree:tiger:AWJFB3JFL2CQRQCBUBK4THVJWLQCGWOJCMLPWWQ&xl=65895850&dn
 
 
 filepath="/home/pi/.config/eiskaltdc++/HashIndex.xml"
-local cmd_date = "stat -c %Y " .. filepath .. " > /tmp/luaexecute"
 
-TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img"}
---TKeepExt={"*"}
+TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img", "mp4"}
+
 
 function Get_cmd_result(str)
    local cmd = str
-   os.execute(cmd)
+   local state =  os.execute(cmd)
    file = io.open("/tmp/luaexecute", "r")
    io.input(file)
    local value=io.read()
    io.close(file)
    return value
 end
-
-filetime = Get_cmd_result(cmd_date)
-searchdate = filetime - backto
 
 
 function split(str, pat)
@@ -78,6 +73,9 @@ end
 
 function searchlatest()
   local out="Latest"
+  local cmd_date = "stat -c %Y " .. filepath .. " > /tmp/luaexecute"
+  filetime = Get_cmd_result(cmd_date)
+  searchdate = filetime - backto
   for line in io.lines(filepath) do
     local i = string.find(line, 'TimeStamp=')
     if i ~= nil then
@@ -92,44 +90,48 @@ function searchlatest()
         local BeginName = string.find(line, "Name")
         local EndName = string.find(line, "TimeStamp")
         local Nameglb = string.sub(line, BeginName +6, EndName -3)
-        -- Debug Nameglb --
-        --print(Nameglb)
+        isreal=os.execute("stat -c %n " .. "\"".. Nameglb .."\"" .. " > /tmp/luaexecute")
+        if isreal == 0 then 
+          -- Debug Nameglb --
+          --print(Nameglb)
+         
 
-        --[[ Extraction du nom de fichier ]]
+          --[[ Extraction du nom de fichier ]]
 
-        Tfilename = split_path(Nameglb,'/')
-        local idfilename=table.getn(Tfilename)
-        local filename=Tfilename[idfilename]
-        filename = filename:gsub('%s','+')
-        -- Debug FileName --
-        --print(filename)
+          Tfilename = split_path(Nameglb,'/')
+          local idfilename=table.getn(Tfilename)
+          local filename=Tfilename[idfilename]
+          filename = filename:gsub('%s','+')
+          -- Debug FileName --
+          --print(filename)
 
 
-        --[[Extraction de l'extension ]]
+          --[[Extraction de l'extension ]]
 
-        Textension = split(filename,'[.]+')
-        local idext=table.getn(Textension)
-        local ext=Textension[idext]
-        -- Debug extension --
-        --print(ext)
-        for k,v in ipairs(TKeepExt) do
-          if v == ext then
-            --  local out=""
-            -- Debug Filename Triee --
-            --print(filename)
-            local cmd_size = "stat -c %s \"" .. Nameglb .. "\" > /tmp/luaexecute"
-            filesize = Get_cmd_result(cmd_size)
-            -- Debug filesize --
-            --print(filesize)
+          Textension = split(filename,'[.]+')
+          local idext=table.getn(Textension)
+          local ext=Textension[idext]
+          -- Debug extension --
+          --print(ext)
+          for k,v in ipairs(TKeepExt) do
+            if v == ext then
+              --  local out=""
+              -- Debug Filename Triee --
+              --print(filename)
+              local cmd_size = "stat -c %s \"" .. Nameglb .. "\" > /tmp/luaexecute"
+              filesize = Get_cmd_result(cmd_size)
+              -- Debug filesize --
+              --print(filesize)
+              
+              --[[ Recuperation du Hash ]] --
+              --print(line)
+              result = string.sub(line,-43,-5)
+              --print(result)
 
-            --[[ Recuperation du Hash ]] --
-            --print(line)
-            result = string.sub(line,-43,-5)
-            --print(result)
-
-            --[[ Creation du Magnet ]] --
-            --out = out .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
-            out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
+              --[[ Creation du Magnet ]] --
+              --out = out .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
+              out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
+	        end
           end
         end
       end
