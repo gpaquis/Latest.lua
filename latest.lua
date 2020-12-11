@@ -1,5 +1,9 @@
 --// vim:ts=4:sw=4:noet
 --// showlatest.lua -- Send lastadd when receive PM "/latest"
+--[[
+-- Version du Script 1.1
+-- Merci a MirageNet pour les test
+-- Contact me loops34atgmaildotcom
 --
 --   pm			= normal pm message
 --   			  f( hub, user, "message" )
@@ -16,15 +20,24 @@
 --
 --
 -- Ecouter le mot "/latest" sur un private message
--- Recuperer la liste des dernieres fichiers ajouts sur les 10 derniers jours
+-- Recuperer la liste des dernieres fichiers ajouts sur les n derniers jours
 -- regarder dans le "HashIndex.xml" 
 -- Renvoyer les TTH et al liste en private message à l'utilisateuren private message
 
+<File Name="/Volumes/Partages/Rpi/eiskaltdcpp_2.10_725.tar.gz" TimeStamp="1606656603" Root="6HHIE3P7AXVTPXGVQNUQIGR476IOG57YEIG7KBI"/>
+magnet:?xt=urn:tree:tiger:AWJFB3JFL2CQRQCBUBK4THVJWLQCGWOJCMLPWWQ&xl=65895850&dn=eiskaltdcpp_2.4_03122020.tgz
+--]]
+
 --[[
+Ne pas toucher la valeur de day
 86400 = 1j
 --]]
 day=86400
-backto= day * 7
+
+--[[ Remplacer le chiffre
+exemple: backto= day * 7
+--]]
+backto= day * 1
 
 --[[
 <File Name="/Volumes/Partages/Rpi/eiskaltdcpp_2.10_725.tar.gz" TimeStamp="1606656603" Root="6HHIE3P7AXVTPXGVQNUQIGR476IOG57YEIG7KBI"/>
@@ -33,7 +46,6 @@ magnet:?xt=urn:tree:tiger:AWJFB3JFL2CQRQCBUBK4THVJWLQCGWOJCMLPWWQ&xl=65895850&dn
 
 
 filepath="/home/pi/.config/eiskaltdc++/HashIndex.xml"
-
 TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img", "mp4"}
 
 
