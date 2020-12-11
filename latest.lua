@@ -158,7 +158,7 @@ end
 dcpp:setListener( "pm", "latest",
 	function( hub, user, text )
 		local s = string.lower( text )
-		if string.find( s, "/latest" )  then
+		if string.find( s, "^[\/]latest" )  then
 		  liste=searchlatest()
 	          user:sendPrivMsgFmt( liste )
                 end
@@ -168,7 +168,7 @@ dcpp:setListener( "pm", "latest",
 dcpp:setListener( "adcPm", "latest",
 	function( hub, user, text, me_msg )
 		local s = string.lower( text )
-		if string.find( s, "/latest" )  then
+		if string.find( s, "^[\/]latest" )  then
                    liste=searchlatest() 
                    user:sendPrivMsgFmt( out )
 		end
