@@ -36,7 +36,7 @@ day=86400
 exemple: backto= day * 7
 --]]
 backto= day * 1
-
+filepath="/home/pi/.config/eiskaltdc++/HashIndex.xml"
 TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img", "mp4", "epub"}
 
 function Get_cmd_result(str)
