@@ -1,7 +1,7 @@
 --// vim:ts=4:sw=4:noet
 --// showlatest.lua -- Send lastadd when receive PM "/latest"
 --[[
--- Version du Script 1.1
+-- Version du Script 1.2
 -- Merci a MirageNet pour les test
 -- Contact me loops34atgmaildotcom
 --
@@ -20,9 +20,8 @@
 --
 --
 -- Ecouter le mot "/latest" sur un private message
--- Recuperer la liste des dernieres fichiers ajouts sur les n derniers jours
--- regarder dans le "HashIndex.xml" 
--- Renvoyer les TTH et al liste en private message à l'utilisateuren private message
+-- Recuperer la liste des dernieres fichiers ajoutés sur les n derniers jours from teh HashIndex.xml files
+-- Renvoyer la liste de magnetlink en private message à l'utilisateure.
 
 <File Name="/Volumes/Partages/Rpi/eiskaltdcpp_2.10_725.tar.gz" TimeStamp="1606656603" Root="6HHIE3P7AXVTPXGVQNUQIGR476IOG57YEIG7KBI"/>
 magnet:?xt=urn:tree:tiger:AWJFB3JFL2CQRQCBUBK4THVJWLQCGWOJCMLPWWQ&xl=65895850&dn=eiskaltdcpp_2.4_03122020.tgz
@@ -39,15 +38,7 @@ exemple: backto= day * 7
 --]]
 backto= day * 1
 
---[[
-<File Name="/Volumes/Partages/Rpi/eiskaltdcpp_2.10_725.tar.gz" TimeStamp="1606656603" Root="6HHIE3P7AXVTPXGVQNUQIGR476IOG57YEIG7KBI"/>
-magnet:?xt=urn:tree:tiger:AWJFB3JFL2CQRQCBUBK4THVJWLQCGWOJCMLPWWQ&xl=65895850&dn=eiskaltdcpp_2.4_03122020.tgz
---]]
-
-
-filepath="/home/pi/.config/eiskaltdc++/HashIndex.xml"
-TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img", "mp4"}
-
+TKeepExt={"avi", "mkv", "mpeg2", "mp3", "flac", "iso", "img", "mp4", "epub"}
 
 function Get_cmd_result(str)
    local cmd = str
@@ -83,8 +74,19 @@ function split_path(str)
    return split(str,'[\\/]+')
 end
 
+function xml_convert(str)
+  local xmlstring = str
+  xmlstring = xmlstring:gsub('&apos;', "'")
+  xmlstring = xmlstring:gsub('&amp;', "&")
+  xmlstring = xmlstring:gsub('&lt;', "<")
+  xmlstring = xmlstring:gsub('&gt;', ">")
+  xmlstring = xmlstring:gsub('&quot;', "\"")
+  return xmlstring
+end
+
+
 function searchlatest()
-  local out="Latest"
+  local out="Last Add"
   local cmd_date = "stat -c %Y " .. filepath .. " > /tmp/luaexecute"
   filetime = Get_cmd_result(cmd_date)
   searchdate = filetime - backto
@@ -102,21 +104,28 @@ function searchlatest()
         local BeginName = string.find(line, "Name")
         local EndName = string.find(line, "TimeStamp")
         local Nameglb = string.sub(line, BeginName +6, EndName -3)
-        isreal=os.execute("stat -c %n " .. "\"".. Nameglb .."\"" .. " > /tmp/luaexecute")
+        --print(Nameglb)
+        
+        --[[ Traitement carateres speciaux
+             conversion format UNIX
+             Validation de l'existance du fichier format "UNIX"
+	--]]
+
+	UnixFormat = xml_convert(Nameglb)
+        -- print(UnixFormat)
+        isreal=os.execute("stat -c %n " .. "\"".. UnixFormat .."\"" .. " > /tmp/luaexecute")
         if isreal == 0 then 
           -- Debug Nameglb --
           --print(Nameglb)
-         
 
           --[[ Extraction du nom de fichier ]]
 
-          Tfilename = split_path(Nameglb,'/')
+          Tfilename = split_path(UnixFormat,'/')
           local idfilename=table.getn(Tfilename)
           local filename=Tfilename[idfilename]
           filename = filename:gsub('%s','+')
           -- Debug FileName --
           --print(filename)
-
 
           --[[Extraction de l'extension ]]
 
@@ -130,7 +139,7 @@ function searchlatest()
               --  local out=""
               -- Debug Filename Triee --
               --print(filename)
-              local cmd_size = "stat -c %s \"" .. Nameglb .. "\" > /tmp/luaexecute"
+              local cmd_size = "stat -c %s \"" .. UnixFormat .. "\" > /tmp/luaexecute"
               filesize = Get_cmd_result(cmd_size)
               -- Debug filesize --
               --print(filesize)
@@ -141,8 +150,7 @@ function searchlatest()
               --print(result)
 
               --[[ Creation du Magnet ]] --
-              --out = out .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
-              out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename
+              out = out .. "\r\n" .. "magnet:?xt=urn:tree:tiger:".. result .."&xl=" .. filesize .. "&dn=" .. filename 
 	    end
           end
         end
@@ -151,6 +159,32 @@ function searchlatest()
   end
   return out
 end
+
+
+
+
+dcpp:setListener( "pm", "latest",
+	function( hub, user, text )
+		local s = string.lower( text )
+		if string.find( s, "^[\/]latest" )  then
+		  liste=searchlatest()
+	          user:sendPrivMsgFmt( liste )
+                end
+	end
+)
+
+dcpp:setListener( "adcPm", "latest",
+	function( hub, user, text, me_msg )
+		local s = string.lower( text )
+		if string.find( s, "^[\/]latest" )  then
+                   liste=searchlatest() 
+                   user:sendPrivMsgFmt( out )
+		end
+	end
+)
+
+DC():PrintDebug( "  ** Loaded latest.lua **" )
+
 
 
 
