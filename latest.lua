@@ -83,6 +83,14 @@ function xml_convert(str)
   return xmlstring
 end
 
+function magnet_filename_encode(str)
+  local magnetfilename = str
+  magnetfilename = string.gsub(magnetfilename,'%&','%%26')
+  magnetfilename = string.gsub(magnetfilename,',','%%2C')
+  magnetfilename = magnetfilename:gsub('%s','+')
+  return magnetfilename
+end
+
 
 function searchlatest()
   local out="Last Add"
@@ -122,7 +130,7 @@ function searchlatest()
           Tfilename = split_path(UnixFormat,'/')
           local idfilename=table.getn(Tfilename)
           local filename=Tfilename[idfilename]
-          filename = filename:gsub('%s','+')
+          filename = magnet_filename_encode(filename)
           -- Debug FileName --
           --print(filename)
 
