@@ -3,7 +3,6 @@
 --[[
 -- Version du Script 1.2
 -- Merci a MirageNet pour les test
--- Contact me loops34atgmaildotcom
 --
 --   pm			= normal pm message
 --   			  f( hub, user, "message" )
