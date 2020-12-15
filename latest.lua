@@ -86,13 +86,18 @@ end
 function magnet_filename_encode(str)
   local magnetfilename = str
   magnetfilename = string.gsub(magnetfilename,'%&','%%26')
+  magnetfilename = string.gsub(magnetfilename,',','%%2C')
+  magnetfilename = string.gsub(magnetfilename,';','%%3B')
+  magnetfilename = string.gsub(magnetfilename,'=','%%3D')
+  magnetfilename = string.gsub(magnetfilename,'?','%%3F')
+  magnetfilename = string.gsub(magnetfilename,'+','%%2B')
+  magnetfilename = string.gsub(magnetfilename,'@','%%40')
+  magnetfilename = string.gsub(magnetfilename,'#','%%23')
   magnetfilename = string.gsub(magnetfilename,'%[','%%5B')
   magnetfilename = string.gsub(magnetfilename,'%]','%%5D')
-  magnetfilename = string.gsub(magnetfilename,',','%%2C')
   magnetfilename = magnetfilename:gsub('%s','+')
   return magnetfilename
 end
-
 
 function searchlatest()
   local out="Last Add"
