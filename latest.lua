@@ -86,6 +86,8 @@ end
 function magnet_filename_encode(str)
   local magnetfilename = str
   magnetfilename = string.gsub(magnetfilename,'%&','%%26')
+  magnetfilename = string.gsub(magnetfilename,'%[','%%5B')
+  magnetfilename = string.gsub(magnetfilename,'%]','%%5D')
   magnetfilename = string.gsub(magnetfilename,',','%%2C')
   magnetfilename = magnetfilename:gsub('%s','+')
   return magnetfilename
