@@ -184,29 +184,3 @@ dcpp:setListener( "adcPm", "latest",
 )
 
 DC():PrintDebug( "  ** Loaded latest.lua **" )
-
-
-
-
-
-dcpp:setListener( "pm", "latest",
-	function( hub, user, text )
-		local s = string.lower( text )
-		if string.find( s, "^[\/]latest" )  then
-		  liste=searchlatest()
-	          user:sendPrivMsgFmt( liste )
-                end
-	end
-)
-
-dcpp:setListener( "adcPm", "latest",
-	function( hub, user, text, me_msg )
-		local s = string.lower( text )
-		if string.find( s, "^[\/]latest" )  then
-                   liste=searchlatest() 
-                   user:sendPrivMsgFmt( out )
-		end
-	end
-)
-
-DC():PrintDebug( "  ** Loaded latest.lua **" )
