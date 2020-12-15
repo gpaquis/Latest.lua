@@ -177,7 +177,7 @@ dcpp:setListener( "adcPm", "latest",
 		local s = string.lower( text )
 		if string.find( s, "^[\/]latest" )  then
                    liste=searchlatest() 
-                   user:sendPrivMsgFmt( out )
+                   user:sendPrivMsgFmt( liste )
 		end
 	end
 )
