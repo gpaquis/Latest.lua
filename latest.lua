@@ -2,7 +2,7 @@
 --// showlatest.lua -- Send lastadd when receive PM "/latest"
 --[[
 -- Version du Script 1.3a
--- Merci a MirageNet pour les test
+-- Merci a MirageNet pour les tests
 -- Contact me loops34atgmaildotcom
 --
 --   pm                 = normal pm message
